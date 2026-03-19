@@ -1,0 +1,14 @@
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.AssemblyInfoInputs.cache
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.AssemblyInfo.cs
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.csproj.CoreCompileInputs.cache
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\bin\Debug\net9.0\OrderFlow.Console.exe
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\bin\Debug\net9.0\OrderFlow.Console.deps.json
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\bin\Debug\net9.0\OrderFlow.Console.runtimeconfig.json
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\bin\Debug\net9.0\OrderFlow.Console.dll
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\bin\Debug\net9.0\OrderFlow.Console.pdb
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.dll
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\refint\OrderFlow.Console.dll
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.pdb
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\OrderFlow.Console.genruntimeconfig.cache
+C:\Users\Student\Desktop\OrderFlow\OrderFlow.Console\obj\Debug\net9.0\ref\OrderFlow.Console.dll

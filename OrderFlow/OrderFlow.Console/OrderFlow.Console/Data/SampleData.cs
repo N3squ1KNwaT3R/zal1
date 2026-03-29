@@ -4,51 +4,82 @@ namespace OrderFlow.Console.Data;
 
 public static class SampleData
 {
-    public static List<Product> Products = new()
+    public static List<Product> Products => new()
     {
-        new Product { Id = 1, Name = "Laptop", Price = 4500m, Category = "Electronics" },
-        new Product { Id = 2, Name = "Smartphone", Price = 2500m, Category = "Electronics" },
-        new Product { Id = 3, Name = "Coffee Maker", Price = 600m, Category = "Appliances" },
-        new Product { Id = 4, Name = "Desk Chair", Price = 850m, Category = "Furniture" },
-        new Product { Id = 5, Name = "Mechanical Keyboard", Price = 400m, Category = "Electronics" }
+        new() { Id = 1, Name = "Laptop",        Price = 3500m, Category = "Electronics" },
+        new() { Id = 2, Name = "Mouse",          Price = 120m,  Category = "Electronics" },
+        new() { Id = 3, Name = "Desk",           Price = 800m,  Category = "Furniture"   },
+        new() { Id = 4, Name = "C# in Depth",    Price = 95m,   Category = "Books"       },
+        new() { Id = 5, Name = "Coffee Maker",   Price = 250m,  Category = "Appliances"  },
+        new() { Id = 6, Name = "Office Chair",   Price = 1200m, Category = "Furniture"   },
     };
 
-    public static List<Customer> Customers = new()
+    public static List<Customer> Customers => new()
     {
-        new Customer { Id = 1, FullName = "Ivan Ivanov", IsVip = true },
-        new Customer { Id = 2, FullName = "Anna Smith", IsVip = false },
-        new Customer { Id = 3, FullName = "John Doe", IsVip = false },
-        new Customer { Id = 4, FullName = "Elena Petrova", IsVip = false }
+        new() { Id = 1, Name = "Anna Kowalska",  City = "Warsaw",  IsVip = true  },
+        new() { Id = 2, Name = "Piotr Nowak",    City = "Krakow",  IsVip = false },
+        new() { Id = 3, Name = "Maria Wiśniewska", City = "Warsaw", IsVip = false },
+        new() { Id = 4, Name = "Jan Zielinski",  City = "Gdansk",  IsVip = true  },
     };
 
-    public static List<Order> GetOrders()
+    public static List<Order> Orders
     {
-        return new List<Order>
+        get
         {
-            new Order { Id = 1, OrderDate = DateTime.Now.AddDays(-5), Status = OrderStatus.Completed, 
-                Items = { new OrderItem { Product = Products[0], Quantity = 1 } } },
-            new Order { Id = 2, OrderDate = DateTime.Now.AddDays(-3), Status = OrderStatus.Processing, 
-                Items = { new OrderItem { Product = Products[2], Quantity = 2 }, new OrderItem { Product = Products[4], Quantity = 1 } } },
-            new Order { Id = 3, OrderDate = DateTime.Now.AddDays(-2), Status = OrderStatus.New, 
-                Items = { new OrderItem { Product = Products[1], Quantity = 1 } } },
-            new Order { Id = 4, OrderDate = DateTime.Now.AddDays(-1), Status = OrderStatus.Cancelled, 
-                Items = { new OrderItem { Product = Products[3], Quantity = 1 } } },
-            new Order { Id = 5, OrderDate = DateTime.Now, Status = OrderStatus.Validated, 
-                Items = { new OrderItem { Product = Products[0], Quantity = 1 }, new OrderItem { Product = Products[1], Quantity = 1 } } },
-            new Order { Id = 6, OrderDate = DateTime.Now, Status = OrderStatus.New, 
-                Items = { new OrderItem { Product = Products[4], Quantity = 3 } } }
-        };
-    }
-
-    public static void InitializeData()
-    {
-        // Привязываем заказы к клиентам для удобства тестов
-        var orders = GetOrders();
-        Customers[0].Orders.Add(orders[0]); // VIP Ivan получил 1-й заказ
-        Customers[0].Orders.Add(orders[4]); // и 5-й
-        Customers[1].Orders.Add(orders[1]);
-        Customers[2].Orders.Add(orders[2]);
-        Customers[3].Orders.Add(orders[3]);
-        Customers[3].Orders.Add(orders[5]);
+            var p = Products;
+            var c = Customers;
+            return new()
+            {
+                new Order
+                {
+                    Id = 1, Customer = c[0], Status = OrderStatus.Completed,
+                    CreatedAt = DateTime.Now.AddDays(-10),
+                    Items = new() {
+                        new() { Product = p[0], Quantity = 1 },
+                        new() { Product = p[1], Quantity = 2 }
+                    }
+                },
+                new Order
+                {
+                    Id = 2, Customer = c[1], Status = OrderStatus.Processing,
+                    CreatedAt = DateTime.Now.AddDays(-3),
+                    Items = new() {
+                        new() { Product = p[2], Quantity = 1 },
+                        new() { Product = p[5], Quantity = 1 }
+                    }
+                },
+                new Order
+                {
+                    Id = 3, Customer = c[2], Status = OrderStatus.New,
+                    CreatedAt = DateTime.Now.AddDays(-1),
+                    Items = new() {
+                        new() { Product = p[3], Quantity = 3 }
+                    }
+                },
+                new Order
+                {
+                    Id = 4, Customer = c[3], Status = OrderStatus.Validated,
+                    CreatedAt = DateTime.Now.AddDays(-5),
+                    Items = new() {
+                        new() { Product = p[4], Quantity = 2 },
+                        new() { Product = p[1], Quantity = 1 }
+                    }
+                },
+                new Order
+                {
+                    Id = 5, Customer = c[0], Status = OrderStatus.Cancelled,
+                    CreatedAt = DateTime.Now.AddDays(-2),
+                    Items = new() {
+                        new() { Product = p[0], Quantity = 2 }
+                    }
+                },
+                new Order
+                {
+                    Id = 6, Customer = c[1], Status = OrderStatus.New,
+                    CreatedAt = DateTime.Now.AddDays(-1),
+                    Items = new() { } 
+                },
+            };
+        }
     }
 }

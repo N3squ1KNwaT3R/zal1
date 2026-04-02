@@ -1,9 +1,69 @@
 ﻿using OrderFlow.Console.Data;
+using OrderFlow.Console.Events;
 using OrderFlow.Console.Models;
 using OrderFlow.Console.Services;
 
 var orders   = SampleData.Orders;
 var customers = SampleData.Customers;
+
+// ── Задача 1: Zdarzenia w procesie zamówienia ────────────────────
+Console.WriteLine("=== TASK 1: Order Pipeline Events ===\n");
+
+var pipeline = new OrderPipeline();
+
+// Subskrybent 1 — Logger konsolowy
+pipeline.StatusChanged += (_, e) =>
+    Console.WriteLine($"[LOG]   {e.Timestamp:HH:mm:ss} | Order #{e.Order.Id} " +
+                      $"{e.OldStatus} → {e.NewStatus}");
+
+// Subskrybent 2 — Symulacja powiadomienia e-mail
+pipeline.StatusChanged += (_, e) =>
+{
+    if (e.NewStatus is OrderStatus.Completed or OrderStatus.Cancelled)
+        Console.WriteLine($"[EMAIL] Sending to {e.Order.Customer.Name}: " +
+                          $"Order #{e.Order.Id} is now {e.NewStatus}.");
+};
+
+// Subskrybent 3 — Aktualizacja statystyk
+int completedCount = 0;
+int cancelledCount = 0;
+pipeline.StatusChanged += (_, e) =>
+{
+    if (e.NewStatus == OrderStatus.Completed) completedCount++;
+    if (e.NewStatus == OrderStatus.Cancelled) cancelledCount++;
+};
+
+// Subskrybent 4 — Walidacja (ValidationCompleted)
+pipeline.ValidationCompleted += (_, e) =>
+{
+    if (e.IsValid)
+        Console.WriteLine($"[VALID] Order #{e.Order.Id} passed validation.");
+    else
+    {
+        Console.WriteLine($"[VALID] Order #{e.Order.Id} FAILED validation:");
+        foreach (var err in e.Errors)
+            Console.WriteLine($"         ✗ {err}");
+    }
+};
+
+// Przetworzenie 3 zamówień: dwa poprawne i jedno z błędem
+var pipelineOrders = new List<Order>
+{
+    new Order { Id = 101, Customer = customers[0], Status = OrderStatus.New, CreatedAt = DateTime.Now,
+        Items = [ new OrderItem { Product = SampleData.Products[0], Quantity = 1 } ] },
+    new Order { Id = 102, Customer = customers[1], Status = OrderStatus.New, CreatedAt = DateTime.Now,
+        Items = [ new OrderItem { Product = SampleData.Products[2], Quantity = 2 } ] },
+    new Order { Id = 103, Customer = customers[2], Status = OrderStatus.New, CreatedAt = DateTime.Now,
+        Items = [] },   // puste — nie przejdzie walidacji
+};
+
+foreach (var order in pipelineOrders)
+{
+    Console.WriteLine($"\n--- Processing Order #{order.Id} ({order.Customer.Name}) ---");
+    pipeline.ProcessOrder(order);
+}
+
+Console.WriteLine($"\n[STATS] Completed: {completedCount} | Cancelled: {cancelledCount}\n");
 
 // ── Задача 2: Валидация ──────────────────────────────────────────
 Console.WriteLine("=== TASK 2: Validation ===");

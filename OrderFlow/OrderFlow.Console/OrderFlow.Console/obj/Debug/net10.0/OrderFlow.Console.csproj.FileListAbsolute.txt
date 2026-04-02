@@ -1,0 +1,15 @@
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/bin/Debug/net10.0/OrderFlow.Console
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/bin/Debug/net10.0/OrderFlow.Console.deps.json
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/bin/Debug/net10.0/OrderFlow.Console.runtimeconfig.json
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/bin/Debug/net10.0/OrderFlow.Console.dll
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/bin/Debug/net10.0/OrderFlow.Console.pdb
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.GeneratedMSBuildEditorConfig.editorconfig
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.AssemblyInfoInputs.cache
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.AssemblyInfo.cs
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.csproj.CoreCompileInputs.cache
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.sourcelink.json
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.dll
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/refint/OrderFlow.Console.dll
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.pdb
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/OrderFlow.Console.genruntimeconfig.cache
+/home/hikky/zal/zal1/OrderFlow/OrderFlow.Console/OrderFlow.Console/obj/Debug/net10.0/ref/OrderFlow.Console.dll

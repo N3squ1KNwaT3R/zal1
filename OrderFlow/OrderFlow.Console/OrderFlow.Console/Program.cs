@@ -65,7 +65,32 @@ foreach (var order in pipelineOrders)
 
 Console.WriteLine($"\n[STATS] Completed: {completedCount} | Cancelled: {cancelledCount}\n");
 
-// ── Задача 2: Валидация ──────────────────────────────────────────
+// ── Zadanie 2: Asynchroniczne pobieranie danych ──────────────────
+Console.WriteLine("=== TASK 2: Async External Services ===\n");
+
+var simulator = new ExternalServiceSimulator();
+
+// Zamówienia do testu (tylko te z itemami)
+var asyncOrders = SampleData.Orders.Where(o => o.Items.Count > 0).ToList();
+
+// --- Sekwencyjnie ---
+Console.WriteLine("-- Sequential processing --");
+var swSeq = System.Diagnostics.Stopwatch.StartNew();
+foreach (var o in asyncOrders)
+    await simulator.ProcessOrderAsync(o);
+swSeq.Stop();
+Console.WriteLine($"Sequential total: {swSeq.ElapsedMilliseconds} ms\n");
+
+// --- Równolegle (max 3 jednocześnie) ---
+Console.WriteLine("-- Parallel processing (max 3 concurrent) --");
+var swPar = System.Diagnostics.Stopwatch.StartNew();
+await simulator.ProcessMultipleOrdersAsync(asyncOrders);
+swPar.Stop();
+Console.WriteLine($"Parallel total:   {swPar.ElapsedMilliseconds} ms\n");
+
+Console.WriteLine($"Speedup: {swSeq.ElapsedMilliseconds / (double)swPar.ElapsedMilliseconds:F2}x faster\n");
+
+// ── Задача 2 (stara): Валидация ──────────────────────────────────
 Console.WriteLine("=== TASK 2: Validation ===");
 var validator = new OrderValidator();
 

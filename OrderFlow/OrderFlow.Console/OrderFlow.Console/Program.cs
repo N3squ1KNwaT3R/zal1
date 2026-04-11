@@ -90,6 +90,78 @@ Console.WriteLine($"Parallel total:   {swPar.ElapsedMilliseconds} ms\n");
 
 Console.WriteLine($"Speedup: {swSeq.ElapsedMilliseconds / (double)swPar.ElapsedMilliseconds:F2}x faster\n");
 
+// ── Zadanie 3: Thread safety w statystykach ──────────────────────
+Console.WriteLine("=== TASK 3: Thread Safety ===\n");
+
+var validatorTs = new OrderValidator();
+// Dużo zamówień żeby wyraźniej pokazać race conditions
+var manyOrders = Enumerable.Range(1, 200)
+    .Select(i => new Order
+    {
+        Id = i,
+        Customer = customers[i % customers.Count],
+        Status = (OrderStatus)(i % 4),
+        CreatedAt = DateTime.Now,
+        Items = i % 7 == 0
+            ? []   // co 7. zamówienie puste → błąd walidacji
+            : [new OrderItem { Product = SampleData.Products[i % SampleData.Products.Count], Quantity = (i % 3) + 1 }]
+    })
+    .ToList();
+
+// --- UNSAFE: uruchamiamy 3 razy i pokazujemy różne wyniki ---
+Console.WriteLine("-- UNSAFE (no synchronization) — run 3 times --");
+for (int run = 1; run <= 3; run++)
+{
+    var unsafeStats = new OrderStatisticsUnsafe();
+    try
+    {
+        Parallel.ForEach(manyOrders, order =>
+        {
+            var (valid, _) = validatorTs.ValidateAll(order);
+            unsafeStats.Record(order, valid);
+        });
+        Console.WriteLine($"  Run {run}: Processed={unsafeStats.TotalProcessed,3} " +
+                          $"Revenue={unsafeStats.TotalRevenue,10:F2} " +
+                          $"Errors={unsafeStats.ProcessingErrors.Count}  ← wrong data");
+    }
+    catch (AggregateException ex)
+    {
+        Console.WriteLine($"  Run {run}: CRASH — {ex.InnerExceptions[0].GetType().Name}: " +
+                          $"{ex.InnerExceptions[0].Message[..60]}...");
+    }
+}
+
+// --- SAFE: uruchamiamy 3 razy — zawsze identyczne wyniki ---
+Console.WriteLine("\n-- SAFE (lock + Interlocked + ConcurrentDictionary) — run 3 times --");
+for (int run = 1; run <= 3; run++)
+{
+    var safeStats = new OrderStatistics();
+    Parallel.ForEach(manyOrders, order =>
+    {
+        var (valid, _) = validatorTs.ValidateAll(order);
+        safeStats.Record(order, valid);
+    });
+    Console.WriteLine($"  Run {run}: Processed={safeStats.TotalProcessed,3} " +
+                      $"Revenue={safeStats.TotalRevenue,10:F2} " +
+                      $"Errors={safeStats.ProcessingErrors.Count}");
+}
+
+// Szczegóły ostatniego safe run
+var finalStats = new OrderStatistics();
+Parallel.ForEach(manyOrders, order =>
+{
+    var (valid, _) = validatorTs.ValidateAll(order);
+    finalStats.Record(order, valid);
+});
+Console.WriteLine("\n-- Final safe stats breakdown --");
+Console.WriteLine($"  TotalProcessed : {finalStats.TotalProcessed}");
+Console.WriteLine($"  TotalRevenue   : {finalStats.TotalRevenue:C}");
+Console.WriteLine("  OrdersPerStatus:");
+foreach (var kv in finalStats.OrdersPerStatus.OrderBy(k => k.Key))
+    Console.WriteLine($"    {kv.Key,-12}: {kv.Value}");
+Console.WriteLine($"  Errors         : {finalStats.ProcessingErrors.Count}");
+Console.WriteLine();
+
 // ── Задача 2 (stara): Валидация ──────────────────────────────────
 Console.WriteLine("=== TASK 2: Validation ===");
 var validator = new OrderValidator();

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using OrderFlow.Console.Models;
+using SysConsole = System.Console;
 
 namespace OrderFlow.Console.Services;
 
@@ -32,7 +33,7 @@ public class ExternalServiceSimulator
     // Wszystkie trzy serwisy równolegle + Stopwatch
     public async Task ProcessOrderAsync(Order order)
     {
-        Console.WriteLine($"  [Order #{order.Id}] Starting parallel service calls...");
+        SysConsole.WriteLine($"  [Order #{order.Id}] Starting parallel service calls...");
         var sw = Stopwatch.StartNew();
 
         var products = order.Items.Select(i => i.Product).Distinct().ToList();
@@ -49,7 +50,7 @@ public class ExternalServiceSimulator
         var paymentOk      = paymentTask.Result;
         var shipping       = shippingTask.Result;
 
-        Console.WriteLine($"  [Order #{order.Id}] Done in {sw.ElapsedMilliseconds} ms | " +
+        SysConsole.WriteLine($"  [Order #{order.Id}] Done in {sw.ElapsedMilliseconds} ms | " +
                           $"Stock: {allInStock} | Payment: {paymentOk} | Shipping: {shipping:C}");
     }
 
@@ -67,7 +68,7 @@ public class ExternalServiceSimulator
             {
                 await ProcessOrderAsync(order);
                 int current = Interlocked.Increment(ref done);
-                Console.WriteLine($"  >>> Przetworzono {current}/{total} zamówień");
+                SysConsole.WriteLine($"  >>> Przetworzono {current}/{total} zamówień");
             }
             finally
             {

@@ -1,6 +1,7 @@
 ﻿using OrderFlow.Console.Data;
 using OrderFlow.Console.Events;
 using OrderFlow.Console.Models;
+using OrderFlow.Console.Persistence;
 using OrderFlow.Console.Services;
 
 var orders   = SampleData.Orders;
@@ -160,6 +161,44 @@ Console.WriteLine("  OrdersPerStatus:");
 foreach (var kv in finalStats.OrdersPerStatus.OrderBy(k => k.Key))
     Console.WriteLine($"    {kv.Key,-12}: {kv.Value}");
 Console.WriteLine($"  Errors         : {finalStats.ProcessingErrors.Count}");
+Console.WriteLine();
+
+// ── Lab3 / Zadanie 1: Repozytorium JSON i XML ───────────────────
+Console.WriteLine("=== LAB3 TASK 1: OrderRepository (JSON & XML) ===\n");
+
+var repo = new OrderRepository();
+var sourceOrders = SampleData.Orders.Where(o => o.Items.Count > 0).ToList();
+
+var jsonPath = Path.Combine("data", "orders.json");
+var xmlPath  = Path.Combine("data", "orders.xml");
+
+// Zapis
+await repo.SaveToJsonAsync(sourceOrders, jsonPath);
+await repo.SaveToXmlAsync(sourceOrders, xmlPath);
+Console.WriteLine($"Saved {sourceOrders.Count} orders → {jsonPath}");
+Console.WriteLine($"Saved {sourceOrders.Count} orders → {xmlPath}");
+
+// Wczytaj z powrotem (round-trip)
+var fromJson = await repo.LoadFromJsonAsync(jsonPath);
+var fromXml  = await repo.LoadFromXmlAsync(xmlPath);
+
+Console.WriteLine($"\n-- Round-trip JSON --");
+Console.WriteLine($"  Count : {fromJson.Count} (expected {sourceOrders.Count})");
+Console.WriteLine($"  Revenue: {fromJson.Sum(o => o.TotalAmount):C} " +
+                  $"(expected {sourceOrders.Sum(o => o.TotalAmount):C})");
+foreach (var o in fromJson)
+    Console.WriteLine($"  #{o.Id,-3} {o.Customer.Name,-20} {o.TotalAmount,10:C}  status={o.Status}");
+
+Console.WriteLine($"\n-- Round-trip XML --");
+Console.WriteLine($"  Count : {fromXml.Count} (expected {sourceOrders.Count})");
+Console.WriteLine($"  Revenue: {fromXml.Sum(o => o.TotalAmount):C} " +
+                  $"(expected {sourceOrders.Sum(o => o.TotalAmount):C})");
+foreach (var o in fromXml)
+    Console.WriteLine($"  #{o.Id,-3} {o.Customer.Name,-20} {o.TotalAmount,10:C}  status={o.Status}");
+
+// Test braku pliku — powinna wrócić pusta lista bez wyjątku
+var missing = await repo.LoadFromJsonAsync("data/nonexistent.json");
+Console.WriteLine($"\n  Missing file → empty list: {missing.Count == 0}");
 Console.WriteLine();
 
 // ── Задача 2 (stara): Валидация ──────────────────────────────────

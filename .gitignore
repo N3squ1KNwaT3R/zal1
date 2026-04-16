@@ -1,0 +1,13 @@
+## Build output
+bin/
+obj/
+
+## Data files (not part of source)
+data/
+inbox/
+*.tmp
+
+## IDE
+.idea/
+.vs/
+*.user

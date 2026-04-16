@@ -201,6 +201,40 @@ var missing = await repo.LoadFromJsonAsync("data/nonexistent.json");
 Console.WriteLine($"\n  Missing file → empty list: {missing.Count == 0}");
 Console.WriteLine();
 
+// ── Lab3 / Zadanie 2: Raport XML (LINQ to XML) ──────────────────
+Console.WriteLine("=== LAB3 TASK 2: XmlReportBuilder ===\n");
+
+var reportBuilder = new XmlReportBuilder();
+var reportOrders  = SampleData.Orders;
+var reportPath    = Path.Combine("data", "report.xml");
+
+var report = reportBuilder.BuildReport(reportOrders);
+await reportBuilder.SaveReportAsync(report, reportPath);
+Console.WriteLine($"Report saved → {reportPath}");
+
+// Podgląd fragmentu raportu
+var summary = report.Root!.Element("summary")!;
+Console.WriteLine($"  totalOrders  = {summary.Attribute("totalOrders")!.Value}");
+Console.WriteLine($"  totalRevenue = {summary.Attribute("totalRevenue")!.Value}");
+
+Console.WriteLine("\nBy status:");
+foreach (var el in report.Root.Element("byStatus")!.Elements("status"))
+    Console.WriteLine($"  {el.Attribute("name")!.Value,-12} " +
+                      $"count={el.Attribute("count")!.Value,2}  " +
+                      $"revenue={el.Attribute("revenue")!.Value}");
+
+Console.WriteLine("\nBy customer:");
+foreach (var el in report.Root.Element("byCustomer")!.Elements("customer"))
+    Console.WriteLine($"  [{el.Attribute("id")!.Value}] {el.Attribute("name")!.Value,-20} " +
+                      $"isVip={el.Attribute("isVip")!.Value,-5}  " +
+                      $"spent={el.Element("totalSpent")!.Value}");
+
+// FindHighValueOrderIds — czyta z pliku, nie z pamięci
+var highValueIds = await reportBuilder.FindHighValueOrderIdsAsync(reportPath, 1000m);
+Console.WriteLine($"\nOrders with total > 1000 zł (read from file):");
+Console.WriteLine($"  Ids: [{string.Join(", ", highValueIds)}]");
+Console.WriteLine();
+
 // ── Задача 2 (stara): Валидация ──────────────────────────────────
 Console.WriteLine("=== TASK 2: Validation ===");
 var validator = new OrderValidator();

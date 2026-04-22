@@ -293,3 +293,66 @@ processor.Chain(
 // ── Задача 4: LINQ ───────────────────────────────────────────────
 Console.WriteLine("\n=== TASK 4: LINQ ===");
 LinqQueries.RunAll(orders, customers);
+
+// ── Lab3 / Zadanie 3: InboxWatcher ──────────────────────────────
+Console.WriteLine("\n=== LAB3 TASK 3: InboxWatcher (FileSystemWatcher) ===\n");
+
+var inboxPath = "inbox";
+var inboxPipeline = new OrderPipeline();
+
+// Subskrybenci pipeline'u dla zamówień z inbox/
+inboxPipeline.StatusChanged += (_, e) =>
+    Console.WriteLine($"[INBOX-EVENT] Order #{e.Order.Id} ({e.Order.Customer.Name}) " +
+                      $"{e.OldStatus} → {e.NewStatus}");
+
+inboxPipeline.ValidationCompleted += (_, e) =>
+{
+    if (!e.IsValid)
+    {
+        Console.WriteLine($"[INBOX-VALID] Order #{e.Order.Id} nie przeszło walidacji:");
+        foreach (var err in e.Errors)
+            Console.WriteLine($"              ✗ {err}");
+    }
+};
+
+using var inboxWatcher = new InboxWatcher(inboxPath, inboxPipeline);
+Console.WriteLine($"Watcher uruchomiony na katalogu '{inboxPath}/'");
+Console.WriteLine("Co 3 s program automatycznie wrzuci testowy plik JSON.\n");
+
+var inboxRepo = new OrderRepository();
+int batchNo = 0;
+
+for (int i = 0; i < 3; i++)
+{
+    await Task.Delay(3000);
+    batchNo++;
+
+    var testOrders = new List<Order>
+    {
+        new Order
+        {
+            Id = 2000 + batchNo * 10,
+            Customer = customers[batchNo % customers.Count],
+            Status = OrderStatus.New,
+            CreatedAt = DateTime.Now,
+            Items = [ new OrderItem { Product = SampleData.Products[batchNo % SampleData.Products.Count], Quantity = 2 } ],
+        },
+        new Order
+        {
+            Id = 2000 + batchNo * 10 + 1,
+            Customer = customers[(batchNo + 1) % customers.Count],
+            Status = OrderStatus.New,
+            CreatedAt = DateTime.Now,
+            Items = [ new OrderItem { Product = SampleData.Products[(batchNo + 1) % SampleData.Products.Count], Quantity = 1 } ],
+        },
+    };
+
+    var fileName = $"batch_{batchNo:D3}_{DateTime.Now:HHmmss}.json";
+    var filePath = Path.Combine(inboxPath, fileName);
+    await inboxRepo.SaveToJsonAsync(testOrders, filePath);
+    Console.WriteLine($"\n[DEMO] Wrzucono plik: {fileName} ({testOrders.Count} zamówienia)");
+}
+
+// Poczekaj na przetworzenie ostatniego pliku
+await Task.Delay(2000);
+Console.WriteLine("\n[DEMO] Demo InboxWatcher zakończone.");

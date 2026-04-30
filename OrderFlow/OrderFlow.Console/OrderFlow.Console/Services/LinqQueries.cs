@@ -7,8 +7,8 @@ public static class LinqQueries
 {
     public static void RunAll(List<Order> orders, List<Customer> customers)
     {
-        // 1. JOIN: orders + customers — группировка по городу (query syntax)
-        // Query syntax читается как SQL — удобно для join+groupby
+        
+        
         SysConsole.WriteLine("\n=== 1. Orders per city (query syntax) ===");
         var byCity =
             from o in orders
@@ -19,8 +19,8 @@ public static class LinqQueries
         foreach (var x in byCity)
             SysConsole.WriteLine($"  {x.City}: {x.Count} orders, {x.Total:C}");
 
-        // 2. SelectMany: Order → OrderItems → Product (method syntax)
-        // Method syntax лучше для цепочек трансформаций
+        
+        
         SysConsole.WriteLine("\n=== 2. All ordered products (SelectMany) ===");
         var allProducts = orders
             .SelectMany(o => o.Items, (o, i) => new { OrderId = o.Id, i.Product.Name, i.TotalPrice })
@@ -29,7 +29,7 @@ public static class LinqQueries
         foreach (var x in allProducts)
             SysConsole.WriteLine($"  Order#{x.OrderId} — {x.Name}: {x.TotalPrice:C}");
 
-        // 3. GroupBy с агрегацией: топ клиенты по сумме (method syntax)
+        
         SysConsole.WriteLine("\n=== 3. Top customers by total spend ===");
         var topCustomers = orders
             .Where(o => o.Status != OrderStatus.Cancelled)
@@ -40,7 +40,7 @@ public static class LinqQueries
         foreach (var x in topCustomers)
             SysConsole.WriteLine($"  {x.Customer}: {x.Total:C}");
 
-        // 4. GroupBy: средняя цена по категориям через SelectMany (method syntax)
+        
         SysConsole.WriteLine("\n=== 4. Average item price per category ===");
         var avgPerCategory = orders
             .SelectMany(o => o.Items)
@@ -50,7 +50,7 @@ public static class LinqQueries
         foreach (var x in avgPerCategory)
             SysConsole.WriteLine($"  {x.Category}: avg {x.Avg:C}");
 
-        // 5. GroupJoin (left join): клиенты у которых может не быть заказов
+        
         SysConsole.WriteLine("\n=== 5. All customers with order count (GroupJoin / left join) ===");
         var customerOrders = customers
             .GroupJoin(orders,
@@ -61,8 +61,8 @@ public static class LinqQueries
         foreach (var x in customerOrders)
             SysConsole.WriteLine($"  {x.FullName} (VIP:{x.IsVip}): {x.OrderCount} orders, {x.Total:C}");
 
-        // 6. Mixed syntax: любимая категория каждого клиента
-        // Внешний запрос — query syntax для читаемости, внутренняя агрегация — method syntax
+        
+        
         SysConsole.WriteLine("\n=== 6. Favourite category per customer (mixed syntax) ===");
         var favCategory =
             from o in orders

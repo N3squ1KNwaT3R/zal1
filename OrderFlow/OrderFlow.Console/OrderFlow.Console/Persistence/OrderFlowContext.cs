@@ -13,7 +13,7 @@ public class OrderFlowContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseSqlite("Data Source=orderflow.db")
+            .UseSqlite("Data Source=orderflow.db;Foreign Keys=True")
             .LogTo(System.Console.WriteLine);
     }
 

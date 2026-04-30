@@ -19,7 +19,7 @@ public class OrderPipeline
 
     public void ProcessOrder(Order order)
     {
-        // New → Validated
+        
         var (isValid, errors) = _validator.ValidateAll(order);
         ValidationCompleted?.Invoke(this, new OrderValidationEventArgs(order, isValid, errors));
 
@@ -31,10 +31,10 @@ public class OrderPipeline
 
         ChangeStatus(order, OrderStatus.Validated);
 
-        // Validated → Processing
+        
         ChangeStatus(order, OrderStatus.Processing);
 
-        // Processing → Completed
+        
         ChangeStatus(order, OrderStatus.Completed);
     }
 }

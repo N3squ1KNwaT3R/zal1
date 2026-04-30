@@ -11,31 +11,31 @@ public class OrderValidator
 
     public OrderValidator()
     {
-        // Named methods
+        
         _namedRules.Add(HasItems);
         _namedRules.Add(AmountWithinLimit);
         _namedRules.Add(AllQuantitiesPositive);
 
-        // Lambdy
+        
         _funcRules.Add((o => o.CreatedAt <= DateTime.Now,       "Order date is in the future"));
         _funcRules.Add((o => o.Status != OrderStatus.Cancelled, "Order is already cancelled"));
     }
 
-    // Named rule 1
+    
     private static bool HasItems(Order order, out string errorMessage)
     {
         errorMessage = "Order has no items";
         return order.Items.Count > 0;
     }
 
-    // Named rule 2
+    
     private static bool AmountWithinLimit(Order order, out string errorMessage)
     {
         errorMessage = $"Order total {order.TotalAmount} exceeds limit of 10000";
         return order.TotalAmount <= 10000m;
     }
 
-    // Named rule 3
+    
     private static bool AllQuantitiesPositive(Order order, out string errorMessage)
     {
         errorMessage = "All item quantities must be > 0";

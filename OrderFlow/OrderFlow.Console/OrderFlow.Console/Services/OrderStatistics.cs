@@ -3,7 +3,6 @@ using OrderFlow.Console.Models;
 
 namespace OrderFlow.Console.Services;
 
-// ── Wersja UNSAFE — bez synchronizacji ──────────────────────────
 public class OrderStatisticsUnsafe
 {
     public int TotalProcessed;
@@ -25,22 +24,22 @@ public class OrderStatisticsUnsafe
     }
 }
 
-// ── Wersja SAFE — z synchronizacją ──────────────────────────────
+
 public class OrderStatistics
 {
-    // Interlocked.Increment dla licznika całkowitoliczbowego
+    
     private int _totalProcessed;
     public int TotalProcessed => _totalProcessed;
 
-    // lock dla decimal (Interlocked nie obsługuje decimal)
+    
     private decimal _totalRevenue;
     private readonly object _revenueLock = new();
     public decimal TotalRevenue => _totalRevenue;
 
-    // ConcurrentDictionary — thread-safe słownik
+    
     public ConcurrentDictionary<OrderStatus, int> OrdersPerStatus = new();
 
-    // lock dla listy
+    
     private readonly List<string> _processingErrors = new();
     private readonly object _errorsLock = new();
     public IReadOnlyList<string> ProcessingErrors => _processingErrors;

@@ -21,7 +21,7 @@ pipeline.StatusChanged += (_, e) =>
 pipeline.StatusChanged += (_, e) =>
 {
     if (e.NewStatus is OrderStatus.Completed or OrderStatus.Cancelled)
-        Console.WriteLine($"[EMAIL] Sending to {e.Order.Customer.Name}: " +
+        Console.WriteLine($"[EMAIL] Sending to {e.Order.Customer.FullName}: " +
                           $"Order #{e.Order.Id} is now {e.NewStatus}.");
 };
 
@@ -60,7 +60,7 @@ var pipelineOrders = new List<Order>
 
 foreach (var order in pipelineOrders)
 {
-    Console.WriteLine($"\n--- Processing Order #{order.Id} ({order.Customer.Name}) ---");
+    Console.WriteLine($"\n--- Processing Order #{order.Id} ({order.Customer.FullName}) ---");
     pipeline.ProcessOrder(order);
 }
 
@@ -187,14 +187,14 @@ Console.WriteLine($"  Count : {fromJson.Count} (expected {sourceOrders.Count})")
 Console.WriteLine($"  Revenue: {fromJson.Sum(o => o.TotalAmount):C} " +
                   $"(expected {sourceOrders.Sum(o => o.TotalAmount):C})");
 foreach (var o in fromJson)
-    Console.WriteLine($"  #{o.Id,-3} {o.Customer.Name,-20} {o.TotalAmount,10:C}  status={o.Status}");
+    Console.WriteLine($"  #{o.Id,-3} {o.Customer.FullName,-20} {o.TotalAmount,10:C}  status={o.Status}");
 
 Console.WriteLine($"\n-- Round-trip XML --");
 Console.WriteLine($"  Count : {fromXml.Count} (expected {sourceOrders.Count})");
 Console.WriteLine($"  Revenue: {fromXml.Sum(o => o.TotalAmount):C} " +
                   $"(expected {sourceOrders.Sum(o => o.TotalAmount):C})");
 foreach (var o in fromXml)
-    Console.WriteLine($"  #{o.Id,-3} {o.Customer.Name,-20} {o.TotalAmount,10:C}  status={o.Status}");
+    Console.WriteLine($"  #{o.Id,-3} {o.Customer.FullName,-20} {o.TotalAmount,10:C}  status={o.Status}");
 
 // Test braku pliku — powinna wrócić pusta lista bez wyjątku
 var missing = await repo.LoadFromJsonAsync("data/nonexistent.json");
@@ -272,9 +272,9 @@ Console.WriteLine("\nAfter validation (New→Validated):");
 processor.ForEach(o => Console.WriteLine($"  #{o.Id} {o.Status}"));
 
 // Func — проекция на анонимный тип
-var projections = processor.Project(o => new { o.Id, o.Customer.Name, o.TotalAmount });
+var projections = processor.Project(o => new { o.Id, o.Customer.FullName, o.TotalAmount });
 Console.WriteLine("\nProjection:");
-projections.ForEach(x => Console.WriteLine($"  #{x.Id} {x.Name} {x.TotalAmount:C}"));
+projections.ForEach(x => Console.WriteLine($"  #{x.Id} {x.FullName} {x.TotalAmount:C}"));
 
 // Агрегация × 3
 Console.WriteLine($"\nSum:  {processor.Aggregate(os => os.Sum(o => o.TotalAmount)):C}");
@@ -287,7 +287,7 @@ processor.Chain(
     filter:  o => o.Customer.IsVip,
     sortKey: o => o.TotalAmount,
     topN:    3,
-    print:   o => Console.WriteLine($"  #{o.Id} {o.Customer.Name} {o.TotalAmount:C}")
+    print:   o => Console.WriteLine($"  #{o.Id} {o.Customer.FullName} {o.TotalAmount:C}")
 );
 
 // ── Задача 4: LINQ ───────────────────────────────────────────────
@@ -302,7 +302,7 @@ var inboxPipeline = new OrderPipeline();
 
 // Subskrybenci pipeline'u dla zamówień z inbox/
 inboxPipeline.StatusChanged += (_, e) =>
-    Console.WriteLine($"[INBOX-EVENT] Order #{e.Order.Id} ({e.Order.Customer.Name}) " +
+    Console.WriteLine($"[INBOX-EVENT] Order #{e.Order.Id} ({e.Order.Customer.FullName}) " +
                       $"{e.OldStatus} → {e.NewStatus}");
 
 inboxPipeline.ValidationCompleted += (_, e) =>

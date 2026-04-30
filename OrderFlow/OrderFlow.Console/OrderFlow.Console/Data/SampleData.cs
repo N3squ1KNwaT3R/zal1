@@ -16,10 +16,10 @@ public static class SampleData
 
     public static List<Customer> Customers => new()
     {
-        new() { Id = 1, Name = "Anna Kowalska",  City = "Warsaw",  IsVip = true  },
-        new() { Id = 2, Name = "Piotr Nowak",    City = "Krakow",  IsVip = false },
-        new() { Id = 3, Name = "Maria Wiśniewska", City = "Warsaw", IsVip = false },
-        new() { Id = 4, Name = "Jan Zielinski",  City = "Gdansk",  IsVip = true  },
+        new() { Id = 1, FullName = "Anna Kowalska",    City = "Warsaw",  IsVip = true  },
+        new() { Id = 2, FullName = "Piotr Nowak",      City = "Krakow",  IsVip = false },
+        new() { Id = 3, FullName = "Maria Wiśniewska", City = "Warsaw",  IsVip = false },
+        new() { Id = 4, FullName = "Jan Zielinski",    City = "Gdansk",  IsVip = true  },
     };
 
     public static List<Order> Orders

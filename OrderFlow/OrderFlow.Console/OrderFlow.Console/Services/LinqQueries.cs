@@ -33,7 +33,7 @@ public static class LinqQueries
         SysConsole.WriteLine("\n=== 3. Top customers by total spend ===");
         var topCustomers = orders
             .Where(o => o.Status != OrderStatus.Cancelled)
-            .GroupBy(o => o.Customer.Name)
+            .GroupBy(o => o.Customer.FullName)
             .Select(g => new { Customer = g.Key, Total = g.Sum(o => o.TotalAmount) })
             .OrderByDescending(x => x.Total);
 
@@ -56,10 +56,10 @@ public static class LinqQueries
             .GroupJoin(orders,
                 c => c.Id,
                 o => o.Customer.Id,
-                (c, os) => new { c.Name, c.IsVip, OrderCount = os.Count(), Total = os.Sum(o => o.TotalAmount) });
+                (c, os) => new { c.FullName, c.IsVip, OrderCount = os.Count(), Total = os.Sum(o => o.TotalAmount) });
 
         foreach (var x in customerOrders)
-            SysConsole.WriteLine($"  {x.Name} (VIP:{x.IsVip}): {x.OrderCount} orders, {x.Total:C}");
+            SysConsole.WriteLine($"  {x.FullName} (VIP:{x.IsVip}): {x.OrderCount} orders, {x.Total:C}");
 
         // 6. Mixed syntax: любимая категория каждого клиента
         // Внешний запрос — query syntax для читаемости, внутренняя агрегация — method syntax
@@ -67,7 +67,7 @@ public static class LinqQueries
         var favCategory =
             from o in orders
             where o.Status != OrderStatus.Cancelled
-            group o by o.Customer.Name into g
+            group o by o.Customer.FullName into g
             let favourite = g
                 .SelectMany(o => o.Items)
                 .GroupBy(i => i.Product.Category)

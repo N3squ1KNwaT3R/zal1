@@ -22,7 +22,7 @@ public class XmlReportBuilder
             .OrderByDescending(x => x.Orders.Sum(o => o.TotalAmount))
             .Select(x => new XElement("customer",
                 new XAttribute("id",    x.Customer.Id),
-                new XAttribute("name",  x.Customer.Name),
+                new XAttribute("name",  x.Customer.FullName),
                 new XAttribute("isVip", x.Customer.IsVip.ToString().ToLower()),
                 new XElement("orderCount", x.Orders.Count),
                 new XElement("totalSpent", x.Orders.Sum(o => o.TotalAmount)),

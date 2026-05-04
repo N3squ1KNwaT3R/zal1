@@ -10,8 +10,8 @@ using OrderFlow.Console.Persistence;
 namespace OrderFlow.Console.Migrations
 {
     [DbContext(typeof(OrderFlowContext))]
-    [Migration("20260430152920_AddEmailAndNotes")]
-    partial class AddEmailAndNotes
+    [Migration("20260430160028_AddProductStock")]
+    partial class AddProductStock
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -119,6 +119,9 @@ namespace OrderFlow.Console.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("Products");
@@ -144,7 +147,7 @@ namespace OrderFlow.Console.Migrations
                         .IsRequired();
 
                     b.HasOne("OrderFlow.Console.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -155,6 +158,11 @@ namespace OrderFlow.Console.Migrations
             modelBuilder.Entity("OrderFlow.Console.Models.Order", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("OrderFlow.Console.Models.Product", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,10 +13,8 @@ public class OrderRepository
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),  // polskie znaki bez ucieczki
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
     };
-
-    // ── JSON ────────────────────────────────────────────────────────
 
     public async Task SaveToJsonAsync(IEnumerable<Order> orders, string path)
     {
@@ -33,8 +31,6 @@ public class OrderRepository
         await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
         return await JsonSerializer.DeserializeAsync<List<Order>>(stream, JsonOptions) ?? [];
     }
-
-    // ── XML ─────────────────────────────────────────────────────────
 
     public async Task SaveToXmlAsync(IEnumerable<Order> orders, string path)
     {

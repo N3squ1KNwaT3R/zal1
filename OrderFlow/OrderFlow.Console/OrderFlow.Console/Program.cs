@@ -7,8 +7,6 @@ using OrderFlow.Console.Services;
 
 var orders   = SampleData.Orders;
 var customers = SampleData.Customers;
-
-// ── EF Core: migrate + seed ──────────────────────────────────────
 Console.WriteLine("=== EF CORE: Database Setup ===");
 await using var db = new OrderFlowContext();
 await db.Database.MigrateAsync();
@@ -363,13 +361,9 @@ for (int i = 0; i < 3; i++)
 
 await Task.Delay(2000);
 Console.WriteLine("\n[DEMO] Demo InboxWatcher zakończone.");
-
-// ── EF CORE: CRUD ────────────────────────────────────────────────
 Console.WriteLine("\n=== EF CORE: CRUD ===\n");
 
 await using var crudDb = new OrderFlowContext();
-
-// ── CREATE ───────────────────────────────────────────────────────
 Console.WriteLine("-- CREATE --");
 var firstCustomer = await crudDb.Customers.FirstAsync();
 var firstTwoProducts = await crudDb.Products.Take(2).ToListAsync();
@@ -389,8 +383,6 @@ var newOrder = new Order
 crudDb.Orders.Add(newOrder);
 await crudDb.SaveChangesAsync();
 Console.WriteLine($"Dodano zamówienie #{newOrder.Id} z {newOrder.Items.Count} pozycjami\n");
-
-// ── READ ─────────────────────────────────────────────────────────
 Console.WriteLine("-- READ --");
 var dbOrders = await crudDb.Orders
     .Include(o => o.Customer)
@@ -405,19 +397,13 @@ foreach (var o in dbOrders)
     foreach (var item in o.Items)
         Console.WriteLine($"       • {item.Product.Name,-20} x{item.Quantity}  @{item.UnitPrice:C}");
 }
-
-// ── UPDATE ───────────────────────────────────────────────────────
 Console.WriteLine("\n-- UPDATE --");
 var orderToUpdate = await crudDb.Orders.FirstAsync(o => o.Status == OrderStatus.New);
 orderToUpdate.Status = OrderStatus.Processing;
 orderToUpdate.Notes  = "Przekazano do realizacji";
 await crudDb.SaveChangesAsync();
 Console.WriteLine($"Zaktualizowano zamówienie #{orderToUpdate.Id}: status={orderToUpdate.Status}, notes=\"{orderToUpdate.Notes}\"\n");
-
-// ── DELETE ───────────────────────────────────────────────────────
 Console.WriteLine("-- DELETE --");
-
-// 1) Delete a cancelled order — its items cascade-delete automatically
 var cancelledOrder = await crudDb.Orders
     .Include(o => o.Items)
     .FirstOrDefaultAsync(o => o.Status == OrderStatus.Cancelled);
@@ -427,9 +413,6 @@ if (cancelledOrder is not null)
     await crudDb.SaveChangesAsync();
     Console.WriteLine($"Usunięto anulowane zamówienie #{cancelledOrder.Id} (cascade: {cancelledOrder.Items.Count} pozycji)");
 }
-
-// 2) Demonstrate Restrict: fresh context so no orders are tracked,
-//    the DELETE reaches SQLite and the FK constraint fires.
 Console.WriteLine("\nRestrict — próba usunięcia klienta z zamówieniami:");
 await using var restrictDb = new OrderFlowContext();
 var customerToDelete = await restrictDb.Customers.FirstAsync();
@@ -442,4 +425,58 @@ try
 catch (DbUpdateException ex)
 {
     Console.WriteLine($"  Restrict OK — wyjątek: {ex.InnerException?.Message ?? ex.Message}");
+}
+Console.WriteLine("\n=== EF CORE: IQueryable LINQ ===");
+await using var linqDb = new OrderFlowContext();
+await DbLinqQueries.RunAllAsync(linqDb);
+Console.WriteLine("\n=== EF CORE: Transakcja ProcessOrder ===\n");
+Console.WriteLine("-- Scenariusz 1: zamówienie z wystarczającym stanem magazynowym --");
+await using var txDb1 = new OrderFlowContext();
+var successOrder = await txDb1.Orders
+    .Include(o => o.Items).ThenInclude(i => i.Product)
+    .FirstOrDefaultAsync(o => o.Status == OrderStatus.New && o.Items.Any());
+
+if (successOrder is not null)
+{
+    foreach (var item in successOrder.Items)
+        item.Product.Stock = item.Quantity + 5;
+    await txDb1.SaveChangesAsync();
+
+    try
+    {
+        await OrderTransactionService.ProcessOrderAsync(txDb1, successOrder.Id);
+        Console.WriteLine($"  OK — zamówienie #{successOrder.Id} przetworzone → Completed");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"  BŁĄD (nieoczekiwany): {ex.Message}");
+    }
+}
+Console.WriteLine("\n-- Scenariusz 2: zamówienie z niewystarczającym stanem magazynowym --");
+await using var txDb2 = new OrderFlowContext();
+var lowStockProduct = await txDb2.Products.FirstAsync();
+lowStockProduct.Stock = 0;
+
+var failCustomer = await txDb2.Customers.FirstAsync();
+var failOrder = new Order
+{
+    CustomerId = failCustomer.Id,
+    Status = OrderStatus.New,
+    CreatedAt = DateTime.UtcNow,
+    Notes = "Test rollback",
+    Items = [ new OrderItem { ProductId = lowStockProduct.Id, UnitPrice = lowStockProduct.Price, Quantity = 2 } ]
+};
+txDb2.Orders.Add(failOrder);
+await txDb2.SaveChangesAsync();
+
+try
+{
+    await OrderTransactionService.ProcessOrderAsync(txDb2, failOrder.Id);
+    Console.WriteLine($"  BŁĄD — powinien był rzucić wyjątek!");
+}
+catch (InsufficientStockException ex)
+{
+    Console.WriteLine($"  Rollback OK — {ex.Message}");
+    await txDb2.Entry(failOrder).ReloadAsync();
+    Console.WriteLine($"  Status zamówienia po rollback: {failOrder.Status} (powinien być New)");
 }

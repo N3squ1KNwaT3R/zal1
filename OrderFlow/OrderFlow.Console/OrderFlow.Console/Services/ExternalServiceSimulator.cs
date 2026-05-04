@@ -12,7 +12,7 @@ public class ExternalServiceSimulator
     {
         var delay = _rng.Next(500, 1501);
         await Task.Delay(delay);
-        var inStock = product.Price < 4000m; // droższe niż 4000 — brak
+        var inStock = product.Price < 4000m;
         return inStock;
     }
 
@@ -29,8 +29,6 @@ public class ExternalServiceSimulator
         await Task.Delay(delay);
         return order.TotalAmount > 1000m ? 0m : 29.99m;
     }
-
-    // Wszystkie trzy serwisy równolegle + Stopwatch
     public async Task ProcessOrderAsync(Order order)
     {
         SysConsole.WriteLine($"  [Order #{order.Id}] Starting parallel service calls...");
@@ -53,8 +51,6 @@ public class ExternalServiceSimulator
         SysConsole.WriteLine($"  [Order #{order.Id}] Done in {sw.ElapsedMilliseconds} ms | " +
                           $"Stock: {allInStock} | Payment: {paymentOk} | Shipping: {shipping:C}");
     }
-
-    // Wiele zamówień równolegle z ograniczeniem do 3
     public async Task ProcessMultipleOrdersAsync(List<Order> orders)
     {
         var semaphore = new SemaphoreSlim(3);

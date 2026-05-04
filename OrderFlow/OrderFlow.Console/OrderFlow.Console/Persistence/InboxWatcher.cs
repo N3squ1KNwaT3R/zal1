@@ -43,7 +43,7 @@ public class InboxWatcher : IDisposable
         lock (_lock)
         {
             if (!_inProgress.Add(e.FullPath))
-                return; // already being processed (duplicate event guard)
+                return;
         }
         _ = ProcessFileAsync(e.FullPath);
     }
@@ -54,8 +54,6 @@ public class InboxWatcher : IDisposable
         try
         {
             SysConsole.WriteLine($"[INBOX] Wykryto plik: {Path.GetFileName(filePath)}");
-
-            // Retry loop — plik może być jeszcze zajęty przez piszącego
             List<Order>? orders = null;
             for (int attempt = 1; attempt <= 5; attempt++)
             {

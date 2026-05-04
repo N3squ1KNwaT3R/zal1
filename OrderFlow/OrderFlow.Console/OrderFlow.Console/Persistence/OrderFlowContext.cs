@@ -19,40 +19,29 @@ public class OrderFlowContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Product
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
             .HasPrecision(18, 2);
-
-        // Customer
         modelBuilder.Entity<Customer>()
             .HasIndex(c => c.FullName);
-
-        // Customer → Order: 1:N, Restrict
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Customer)
             .WithMany()
             .HasForeignKey(o => o.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Order
         modelBuilder.Entity<Order>()
             .HasIndex(o => o.Status);
 
         modelBuilder.Entity<Order>()
             .Ignore(o => o.TotalAmount);
-
-        // Order → OrderItem: 1:N, Cascade
         modelBuilder.Entity<OrderItem>()
             .HasOne<Order>()
             .WithMany(o => o.Items)
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        // OrderItem → Product: N:1
         modelBuilder.Entity<OrderItem>()
             .HasOne(i => i.Product)
-            .WithMany()
+            .WithMany(p => p.OrderItems)
             .HasForeignKey(i => i.ProductId);
 
         modelBuilder.Entity<OrderItem>()

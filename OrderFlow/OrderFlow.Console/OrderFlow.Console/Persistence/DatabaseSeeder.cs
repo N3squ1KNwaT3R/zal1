@@ -12,15 +12,15 @@ public static class DatabaseSeeder
 
         var products = new List<Product>
         {
-            new() { Name = "Laptop",       Price = 3500m, Category = "Electronics" },
-            new() { Name = "Mouse",        Price = 120m,  Category = "Electronics" },
-            new() { Name = "Desk",         Price = 800m,  Category = "Furniture"   },
-            new() { Name = "C# in Depth",  Price = 95m,   Category = "Books"       },
-            new() { Name = "Coffee Maker", Price = 250m,  Category = "Appliances"  },
-            new() { Name = "Office Chair", Price = 1200m, Category = "Furniture"   },
+            new() { Name = "Laptop",       Price = 3500m, Category = "Electronics", Stock = 10 },
+            new() { Name = "Mouse",        Price = 120m,  Category = "Electronics", Stock = 50 },
+            new() { Name = "Desk",         Price = 800m,  Category = "Furniture",   Stock = 5  },
+            new() { Name = "C# in Depth",  Price = 95m,   Category = "Books",       Stock = 30 },
+            new() { Name = "Coffee Maker", Price = 250m,  Category = "Appliances",  Stock = 15 },
+            new() { Name = "Office Chair", Price = 1200m, Category = "Furniture",   Stock = 8  },
         };
         db.Products.AddRange(products);
-        await db.SaveChangesAsync();   // IDs assigned after this
+        await db.SaveChangesAsync();
 
         var customers = new List<Customer>
         {
@@ -30,7 +30,7 @@ public static class DatabaseSeeder
             new() { FullName = "Jan Zielinski",    City = "Gdansk", IsVip = true,  Email = "jan@example.com"  },
         };
         db.Customers.AddRange(customers);
-        await db.SaveChangesAsync();   // IDs assigned after this
+        await db.SaveChangesAsync();
 
         var orders = new List<Order>
         {

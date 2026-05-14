@@ -5,6 +5,9 @@ namespace OrderFlow.Console.Persistence;
 
 public class OrderFlowContext : DbContext
 {
+    public OrderFlowContext() { }
+    public OrderFlowContext(DbContextOptions<OrderFlowContext> options) : base(options) { }
+
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Order> Orders => Set<Order>();
@@ -12,6 +15,7 @@ public class OrderFlowContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured) return;
         optionsBuilder
             .UseSqlite("Data Source=orderflow.db;Foreign Keys=True")
             .LogTo(System.Console.WriteLine);

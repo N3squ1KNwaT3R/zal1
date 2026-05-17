@@ -19,4 +19,18 @@ public class DiscountCalculatorTests
         // Assert
         Assert.Equal(0m, discount);
     }
+
+    [Fact]
+    public void Calculate_VipCustomerSmallAmount_ReturnsTenPercent()
+    {
+        // Arrange
+        decimal total = 200m;
+        bool isVip = true;
+
+        // Act
+        decimal discount = _calc.Calculate(total, isVip);
+
+        // Assert
+        Assert.Equal(20m, discount); // 10% of 200
+    }
 }

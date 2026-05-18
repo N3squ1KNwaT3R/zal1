@@ -21,6 +21,20 @@ public class DiscountCalculatorTests
     }
 
     [Fact]
+    public void Calculate_StandardCustomerAbove1000_ReturnsFivePercent()
+    {
+        // Arrange
+        decimal total = 2000m;
+        bool isVip = false;
+
+        // Act
+        decimal discount = _calc.Calculate(total, isVip);
+
+        // Assert
+        Assert.Equal(100m, discount); // 5% of 2000
+    }
+
+    [Fact]
     public void Calculate_VipCustomerSmallAmount_ReturnsTenPercent()
     {
         // Arrange

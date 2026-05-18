@@ -9,6 +9,9 @@ public class DiscountCalculator
         if (isVip)
             rate += 0.10m;
 
+        if (orderTotal > 1000m)
+            rate += 0.05m;
+
         return orderTotal * rate;
     }
 }

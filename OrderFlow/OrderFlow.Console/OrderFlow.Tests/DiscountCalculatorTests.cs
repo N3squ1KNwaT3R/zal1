@@ -7,6 +7,20 @@ public class DiscountCalculatorTests
     private readonly DiscountCalculator _calc = new();
 
     [Fact]
+    public void Calculate_VipCustomerAbove5000_ReturnsTwentyPercent()
+    {
+        // Arrange
+        decimal total = 6000m;
+        bool isVip = true;
+
+        // Act
+        decimal discount = _calc.Calculate(total, isVip);
+
+        // Assert
+        Assert.Equal(1200m, discount); // 10% VIP + 5% high-value + 5% VIP-high-value bonus = 20% of 6000
+    }
+
+    [Fact]
     public void Calculate_StandardCustomerSmallAmount_ReturnsZeroDiscount()
     {
         // Arrange

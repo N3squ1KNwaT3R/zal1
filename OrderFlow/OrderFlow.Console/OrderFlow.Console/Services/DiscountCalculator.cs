@@ -2,21 +2,32 @@ namespace OrderFlow.Console.Services;
 
 public class DiscountCalculator
 {
+    private const decimal VipDiscountRate       = 0.10m;
+    private const decimal HighValueRate         = 0.05m;
+    private const decimal VipHighValueBonus     = 0.05m;
+    private const decimal HighValueThreshold    = 1000m;
+    private const decimal VipHighValueThreshold = 5000m;
+    private const decimal MaxDiscountRate       = 0.25m;
+
     public decimal Calculate(decimal orderTotal, bool isVip)
     {
-        decimal rate = 0m;
+        var rate = ComputeRate(orderTotal, isVip);
+        return orderTotal * rate;
+    }
+
+    private static decimal ComputeRate(decimal orderTotal, bool isVip)
+    {
+        var rate = 0m;
 
         if (isVip)
-            rate += 0.10m;
+            rate += VipDiscountRate;
 
-        if (orderTotal > 1000m)
-            rate += 0.05m;
+        if (orderTotal > HighValueThreshold)
+            rate += HighValueRate;
 
-        if (isVip && orderTotal > 5000m)
-            rate += 0.05m;
+        if (isVip && orderTotal > VipHighValueThreshold)
+            rate += VipHighValueBonus;
 
-        rate = Math.Min(rate, 0.25m);
-
-        return orderTotal * rate;
+        return Math.Min(rate, MaxDiscountRate);
     }
 }

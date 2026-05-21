@@ -480,3 +480,43 @@ catch (InsufficientStockException ex)
     await txDb2.Entry(failOrder).ReloadAsync();
     Console.WriteLine($"  Status zamówienia po rollback: {failOrder.Status} (powinien być New)");
 }
+
+Console.WriteLine("\n=== LAB5 TASK 3: CurrencyService (NBP API) ===\n");
+
+using var httpClient = new HttpClient();
+var currencyService  = new CurrencyService(httpClient);
+var converter        = new OrderCurrencyConverter(currencyService);
+
+await using var currencyDb = new OrderFlowContext();
+var currencyOrders = await currencyDb.Orders
+    .Include(o => o.Customer)
+    .Include(o => o.Items).ThenInclude(i => i.Product)
+    .Where(o => o.Items.Any())
+    .Take(5)
+    .ToListAsync();
+
+try
+{
+    var usdRate = await currencyService.GetRateAsync("USD");
+    var eurRate = await currencyService.GetRateAsync("EUR");
+    Console.WriteLine($"Kursy NBP: 1 USD = {usdRate:F4} PLN | 1 EUR = {eurRate:F4} PLN\n");
+
+    Console.WriteLine($"{"#",-5} {"Klient",-22} {"PLN",10} {"USD",10} {"EUR",10}");
+    Console.WriteLine(new string('-', 62));
+
+    foreach (var order in currencyOrders)
+    {
+        var totalPln = order.Items.Sum(i => i.TotalPrice);
+        var totalUsd = await converter.ConvertOrderTotalAsync(order, "USD");
+        var totalEur = await converter.ConvertOrderTotalAsync(order, "EUR");
+        Console.WriteLine($"#{order.Id,-4} {order.Customer.FullName,-22} {totalPln,10:F2} {totalUsd,10:F2} {totalEur,10:F2}");
+    }
+}
+catch (CurrencyServiceException ex)
+{
+    Console.WriteLine($"[BŁĄD] Nie udało się pobrać kursów: {ex.Message} (kod {ex.StatusCode})");
+}
+catch (HttpRequestException ex)
+{
+    Console.WriteLine($"[BŁĄD] Brak połączenia z api.nbp.pl: {ex.Message}");
+}
